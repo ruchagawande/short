@@ -1,0 +1,765 @@
+profile."html"
+
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
+    <title>Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" href="/css/front.css">
+    <link rel="stylesheet" href="./assets/css/style1.css">
+    <!-- <link rel="preload" href="/js/app.js?id=81f1869e0dcfcc9bd77a014f35bdf80e" as="script"> -->
+</head>
+<script>
+    //     function qrCreate() {
+    //   var url = document.getElementById("url").value;
+    //   fetch("http://localhost:8090/api/qrCreate", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       url: url,
+    //       user: localStorage.getItem("userId"),
+    //     }),
+    //   })
+    //     .then((response) => response.json())
+    //     .then((data) => {
+    //       console.log(data.data.url); // Access the generated URL
+    //     })
+    //     .catch((error) => console.log(error));
+    // }
+    
+    function qrCreate() {
+      var url = document.getElementById("qr-content").value;
+      fetch("http://localhost:8090/api/qrCreate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: url,
+          user: localStorage.getItem("userId"),
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data); // Log the entire response data for debugging
+          console.log(data.data); // Log the data property of the response
+          console.log(data.data.url); // Access the generated QR code URL
+        //   var qrCodeUrl = data.data.url;
+          // Do something with the QR code URL, such as displaying it on the page
+        //   document.getElementById("qrCodeImage").src = qrCodeUrl;
+        })
+        .catch((error) => console.log(error));
+    }
+    
+    
+    var linkGenerated=false;
+    
+    function CreateUrl() {
+      var url = document.getElementById("url").value;
+      var buttonElement = document.querySelector("button");
+    
+      if (url === "") {
+        alert("Please input a link");
+        return;
+      }
+    
+      if (linkGenerated) {
+        alert("Short link has already been generated");
+        return;
+      }
+    
+      fetch("http://localhost:8090/api/urlCreate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          url: url,
+          user: localStorage.getItem("userId"), // Replace with the appropriate user value
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.data);
+    
+          var shortUrl = data.data.shortURL;
+          document.getElementById("shortURL").value = shortUrl;
+    
+          // Copy the short URL to the clipboard
+          var inputField = document.getElementById("shortURL");
+          inputField.select();
+          inputField.setSelectionRange(0, 99999); // For mobile devices
+          document.execCommand("copy");
+    
+          // Update the button text and disable it
+          var btnvalue = "Copied!";
+          console.log(btnvalue);
+          $("#shortenButton").html(btnvalue);
+          $("#shortenButton").prop("disabled", true);
+    
+          linkGenerated = true;
+    
+          // Refresh the URL
+        //   window.location.reload();
+        // document.getElementById("url").value = "";
+        
+        
+        })
+        .catch((error) => console.log(error));
+    }
+    
+    
+    
+    function redirectToURL() {
+      var shortURL = document.getElementById("shortURL").value;
+    
+      fetch(`http://localhost:8090/${shortURL}`)
+        .then((response) => {
+          if (response.ok) {
+            return response.url; // Retrieve the redirected URL
+          } else {
+            throw new Error("Failed to redirect");
+          }
+        })
+        .then((longURL) => {
+          window.open(longURL, "_blank"); // Open the long URL in a new tab
+         
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+    
+    
+    
+     
+    // function signup() {
+    //         var name = document.getElementById("name").value;
+    //         var email = document.getElementById("email").value;
+    //         var password = document.getElementById("password").value;
+    //         var isUserRegistered = checkIfUserRegistered();
+    //         if (isUserRegistered) {
+    //     // Open the login modal
+    //     $('#signInModal').modal('show');
+    //     // Close the register modal
+    //     $('#signUpModal').modal('hide');
+    //   } else
+    //    {
+        
+      
+    //         console.log(name, email, password);
+    
+    //         fetch("http://localhost:8090/api/Register", {
+    //             method: "POST",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //             },
+    //             body: JSON.stringify({
+    //                 name: name,
+    //                 email: email,
+    //                 password: password,
+    //             }),
+    //         })
+        
+    //             .then((response) => response.json())
+    //             .then((data) => {
+    //                 console.log(data);
+    //                 if (
+    //                     data === "Name is missing." ||
+    //                     data === "Email is missing." ||
+    //                     data === "Please Enter A Correct Email like abc@example.com" ||
+    //                     data === "Password is missing." ||
+    //                     data === "Password is weak , Please enter strong password" ||
+    //                     data === "The Email address has already been taken." ||
+    //                     data === "Error in password encryption."
+    //                 ) {
+    //                     alert(data);
+    //                 }
+    //                 if (data.message === "Register successfully") {
+    //                     alert("Register successfully");
+    //                 }
+    //                 email = data.data[0].email;
+    //                 localStorage.setItem("email", email);
+    //                 signIn();
+    //             })
+    //             .catch((error) => console.log(error));   
+    //         }
+    
+    //     }
+    
+    
+    function signup() {
+      var name = document.getElementById("name").value;
+      var email = document.getElementById("email").value;
+      var password = document.getElementById("password").value;
+    //   var isUserRegistered = checkIfUserRegistered();
+    
+    //   if (isUserRegistered) {
+    //     // Open the login modal
+    //     $('#signInModal').modal('show');
+    //     // Close the register modal
+    //     $('#signUpModal').modal('hide');
+    //   } 
+    
+        console.log(name, email, password);
+    
+        fetch("http://localhost:8090/api/Register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            password: password,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            if (
+              data === "Name is missing." ||
+              data === "Email is missing." ||
+              data === "Please Enter A Correct Email like abc@example.com" ||
+              data === "Password is missing." ||
+              data === "Password is weak , Please enter strong password" ||
+              data === "The Email address has already been taken." ||
+              data === "Error in password encryption."
+            ) {
+              alert(data);
+            }
+            if (data.message === "Register successfully") {
+              alert("Register successfully");
+            }
+            // email = data.data[0].email;
+            // localStorage.setItem("email", email);
+            // signIn();
+          })
+          .catch((error) => console.log(error));
+      }
+    
+    
+       
+    
+        function signIn() {
+            var email = document.getElementById("emailsignin").value;
+            var password = document.getElementById("passwordsignin").value;
+            console.log(email, password);
+    
+            fetch("http://localhost:8090/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data)
+                    alert(data.message)
+                    localStorage.setItem("userId", data.data.userId)
+                    localStorage.setItem("email", data.data.email);
+                    // window.location.href = "prodata.html";
+                })
+                .catch((error) => console.log(error));
+        }
+    
+        // function myProfile() {
+//   var email = localStorage.getItem("email");
+//   var userName = localStorage.getItem("user",data.data.user)
+
+//   console.log(email);
+
+//   fetch(`http://localhost:8090/api/myProfile/${email}`, {
+//     method: "GET",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   })
+//     .then((response) => response.json())
+//     .then(function(data) {
+//         var user = data.data.user;
+//         var userProfile = data.data;
+
+//       console.log(data.data);
+      
+    
+//     // const name = data.data.userdata; // Assuming the user's name is stored in the 'name' field
+//     // document.querySelector(".account-img-inline").textContent = name;
+//    document.getElementById("username").textContent = userProfile.name;
+   
+
+//     })
+//     .catch((error) => console.log(error));
+// }
+document.addEventListener("DOMContentLoaded", function () {
+        // Fetch the user ID and email from local storage
+        var userId = localStorage.getItem("userId");
+        var email = localStorage.getItem("email");
+
+        // Make a fetch request to fetch the user profile data
+        fetch("http://localhost:8090/api/myProfile/" + email)
+          .then(function (response) {
+            if (!response.ok) {
+              throw new Error("Error retrieving user data: " + response.status);
+            }
+            return response.json();
+          })
+          .then(function (data) {
+            var user = data.data.user;
+            var linkHistory = data.data.linkHistory;
+            var userProfile = data.data;
+
+            // Display the user's name and purchased plan in the profile panel
+            // document.getElementById("username").textContent =
+            //   data.data.user.name;
+            document.getElementById("username").textContent = userProfile.name;
+
+          })
+
+        });
+
+
+
+
+
+
+        function logout() {
+      var email = localStorage.getItem('email');
+      console.log(email);
+    
+      fetch(`/api/logout/${email}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data.data);
+          localStorage.removeItem("email");
+          window.location.href = 'index.html';
+        //   document.getElementById('logoutButton').addEventListener('click',logout);
+        document.getElementById("logoutSection").style.display = "none";
+                document.getElementById("loginSection").style.display = "block";
+        })
+        .catch((error) => console.log(error));
+    }
+    
+    
+    
+    
+    
+        function PaymentGateway() {
+            var payment_id = document.getElementById("payment_id").value;
+            var payment_amount = document.getElementById("payment_amount").value;
+            var plan_name = document.getElementById("plan_name").value;
+            var start_time = document.getElementById("start_time").value;
+            var end_time = document.getElementById("end_time").value;
+            var duration = document.getElementById("duration").value;
+            var status = document.getElementById("status").value;
+    
+            var userId= localStorage.getItem("userId")
+            console.log(userId)
+            fetch("http://localhost:8090/api/save/payment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    payment_id: payment_id,
+                    payment_amount: payment_amount,
+                    plan_name: plan_name,
+                    start_time: start_time,
+                    end_time: end_time,
+                    duration: duration,
+                    status: status,
+                    user: userId
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
+                    if (
+                        data === "Name is missing." ||
+                        data === "Email is missing." ||
+                        data === "Please Enter A Correct Email like abc@example.com" ||
+                        data === "Password is missing." ||
+                        data === "Password is weak , Please enter strong password" ||
+                        data === "The Email address has already been taken." ||
+                        data === "Error in password encryption."
+                    ) {
+                        alert(data);
+                    }
+                    if (data.message === "successfully saved!") {
+                        alert("saved successfully");
+                    }
+                   
+                })
+                .catch((error) => console.log(error));
+    
+        }
+    
+    
+    </script>
+<style>
+    .router-link-active[data-v-04b2c4a4] {
+        background-color: #fff;
+        border-right: 3px solid #28c98b
+    }
+</style>
+<style>
+    #color{
+        background-color: white;
+    }
+    
+</style>
+<script>
+    function bar() {
+      var x = document.getElementById("myDIV");
+      if (x.style.display === "none") {
+        x.style.display = "block";
+      } else {
+        x.style.display = "none";
+      }
+    }
+    </script>
+<body >
+    <div id="cutlen">
+        <div class="root">
+            <header class="pl-3 pl-lg-5 pr-3 pr-lg-5 py-3" id="color">
+                <nav role="navigation" class="d-flex" >
+                    <img src="./assets/img/Cutlen_logo.png" alt="" style="width:7rem;">
+                    <div class="d-flex d-md-none ml-auto">
+                       <button type="button" aria-label="Menu" class="btn btn-outline-light ml-2" ><i
+                                class="fa fa-bars fa-lg" onclick="myFunction()" id="aishu"></i></button></div>
+                    <div class="d-none d-md-block flex-grow-1" style="z-index: 12;">
+                        <div class="flex-center-end flex-wrap">
+                            <div class="flex-center mx-2"><a href="#"
+                                    class="flex-center-center rounded-circle bg-blue text-white mx-1 home_header_button_help has-tooltip"
+                                    aria-label="Help" data-original-title="null" style="height: 32px; width: 32px;"><i
+                                        class="fa fa-question"></i></a> <a href="#"
+                                    class="flex-center-center rounded-circle bg-blue text-white mx-1 has-tooltip"
+                                    aria-label="Notifications" data-original-title="null"
+                                    style="height: 32px; width: 32px;">
+                                    <div class="position-relative"><i class="fa fa-bell"></i> <i
+                                            class="fa fa-sm position-absolute" style="top: 5px; right: -5px;"></i></div>
+                                </a>
+                                <div class="flex-center-center rounded-circle bg-blue text-white mx-1 cursor-pointer has-tooltip"
+                                    data-original-title="null" style="height: 32px; width: 32px; display: none;">
+                                    <div class="position-relative"><i class="fa fa-envelope"></i> <span
+                                            class="position-absolute badge badge-warning align-top ml-n2 mt-n2">
+                                            0
+                                        </span></div>
+                                </div>
+                                <div class="flex-center-center rounded-circle bg-blue text-white mx-1 cursor-pointer has-tooltip"
+                                    data-original-title="null" style="height: 32px; width: 32px; display: none;">
+                                    <div class="position-relative"><i class="fa fa-shopping-cart"></i> <span
+                                            class="position-absolute badge badge-warning align-top ml-n2 mt-n2">
+                                            0
+                                        </span></div>
+                                </div>
+                            </div>
+                            <div class="flex-center bg-teal rounded position-relative"><a href="./myurl.html"
+                                    class="navigation-link rounded home_header_button_myurls" role="menuitem">
+                                    My URLs
+                                </a> <a href="#" class="navigation-link rounded home_header_button_pricing"
+                                    role="menuitem">
+                                    Plans
+                                </a>
+                                <div class="cd">
+                                    <div class="flex-center"><a 
+                                            class="navigation-link rounded">
+                                         
+                                        </a><i class=" fa-1x ml-2"
+                                            style="transform: rotate(0deg); display: none;"></i></div>
+                              
+                                </div>
+                                <a href="" class="navigation-link rounded router-link-active" role="menuitem">
+                                    <div class="flex-center-between">
+                                        <!-- <img src="" class="account-img-inline"> -->
+                                        <!-- <span class="ml-2" id="username"></span> -->
+                                         <!-- Add an id attribute -->
+                                        <span id="username"></span>
+                                        
+                                    </div>
+                                </a>
+                                
+                                
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+               
+            </header>
+
+       
+
+<script>
+    function myFunction() {
+  var x = document.getElementById("myDIV");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+</script>
+
+
+
+            <div class="pop-2 side-right-enter-active slide-right-enter-to hideForm" id="myDIV"  style="display: none;">
+                <div class="flex-center border-bottom p-3">
+                    <!----> <button aria-label="Close side-right-leave-active slide-right-leave-to " onclick="myFunction()" class="btn btn-outline-dark ml-auto"
+                        style="padding: 9px 12px;"><i class="fa fa-lg fa-times" ></i></button></div>
+                <div tabindex="-1" class="flex-grow-1 overflow-y-a">
+                    <nav role="navigation" class="py-2"><a href="#" aria-current="page"
+                            class="nav-link-m py-2 px-4 router-link-exact-active router-link-active" role="menuitem"
+                            aria-haspopup="true">
+                            <div class="flex-center border rounded py-2 px-3 bg-blue text-white"><img
+                                    src=""
+                                    class="img-fluid rounded-circle" style="height: 30px; width: 30px;"> <span
+                                    class="ml-2" id="profile-name"></span></div>
+                        </a>
+                        <!---->
+                        <!---->
+                        <div class="my-2"></div> <a href="#" class="nav-link-m py-2 px-4 router-link-active"
+                            role="menuitem">
+                            Home
+                        </a>
+                        <hr class="my-1 mx-4"> <a href="./myurl.html"
+                            class="nav-link-m-noactive py-2 px-4 home_header_button_myurls" role="menuitem">
+                            My URLs
+                        </a>
+                        <hr class="my-1 mx-4"> <a href="#" class="nav-link-m-noactive py-2 px-4">
+                            <div class="d-flex"><span>Notifications</span> <i class="fa fa-sm"
+                                    style="margin-top: 8px; margin-left: 3px;"></i></div>
+                        </a>
+                        <hr class="my-1 mx-4">
+                        <!---->
+                        <!----> <a href="#" class="nav-link-m py-2 px-4 home_header_button_pricing"
+                            role="menuitem">
+                            Plans
+                        </a>
+                        <hr class="my-1 mx-4"> <a href="#" role="menuitem" aria-haspopup="true"
+                            class="nav-link-m py-2 px-4 d-flex justify-content-between home_header_button_features">
+                            Features
+                            <i aria-hidden="true" class="fa fa-caret-down"></i></a>
+                        <div class="overflow-y-h">
+                            <!---->
+                        </div>
+                        <hr class="my-1 mx-4"> <a href="./profile.html" aria-current="page"
+                            class="nav-link-m py-2 px-4 router-link-exact-active router-link-active account_sidebar_button_profile">
+                            Profile
+                        </a>
+                        <!-- <hr class="my-1 mx-4"><a href="./security.html"
+                            class="nav-link-m py-2 px-4 account_sidebar_button_security">
+                            Security
+                        </a> -->
+                        <hr class="my-1 mx-4"><a href="./accountUsage.html"
+                            class="nav-link-m py-2 px-4 account_sidebar_button_usage">
+                            Account Usage
+                        </a>
+                       
+                        
+                        <hr class="my-1 mx-4"> <a href="#" role="menuitem" aria-haspopup="true"
+                            class="nav-link-m py-2 px-4 d-flex justify-content-between">
+                            Billing
+                            <i aria-hidden="true" class=""></i></a>
+                        <div class="overflow-y-h">
+                            <!---->
+                        </div>
+                        <hr class="my-1 mx-4"> <a href="#"
+                            class="nav-link-m py-2 px-4 home_header_button_help" role="menuitem">
+                            Help
+                        </a>
+                        <!---->
+                    </nav>
+                </div>
+                <div class="flex-grow">
+                    <div class="py-4 px-3">
+                        <button onclick="logout()" id="logoutButton" href="./index.html" class="btn btn-block btn-blue account_sidebar_button_logout">
+                            Log Out
+                        </button> 
+                        <a href="#"
+                            class="btn btn-block btn-green font-weight-seminormal" role="button">
+                            Upgrade Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+<script>
+     function logout() {
+  var email = localStorage.getItem('email');
+  console.log(email);
+
+  fetch(`/api/logout/${email}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data.data);
+      window.location.href = "index.html";
+    //   document.getElementById('logoutButton').addEventListener('click',logout);
+    })
+    .catch((error) => console.log(error));
+}
+</script>
+
+            <!---->
+            <section class="row no-gutters takerow">
+                <div class="bg-gray-200 col-md-auto d-none d-md-block overflow-y-a" style="width: 250px;">
+                    <nav data-v-04b2c4a4="" class="d-flex flex-column h-100">
+                        <h3 data-v-04b2c4a4="" class="nav-link text-dark text-secondary">
+                            Settings
+                        </h3>
+                        <a data-v-04b2c4a4="" href="./profile.html" aria-current="page"
+                            class="nav-link hover-white text-dark router-link-exact-active router-link-active account_sidebar_button_profile  .router-link-active">
+                            <i data-v-04b2c4a4="" class="fa fa-fw mr-2 fa-user"></i>Profile
+                        </a>
+                        <!-- <a data-v-04b2c4a4="" href="./security.html"
+                            class="nav-link hover-white text-dark account_sidebar_button_security">
+                            <i data-v-04b2c4a4="" class="fa fa-fw mr-2 fa-lock"></i>Security
+                        </a> -->
+                        <a data-v-04b2c4a4="" href="./accountUsage.html"
+                            class="nav-link hover-white text-dark account_sidebar_button_usage">
+                            <i data-v-04b2c4a4="" class="fa fa-fw mr-2 fa-tachometer-alt"></i>Account Usage
+                        </a>
+                       
+                        <br data-v-04b2c4a4="">
+                        <h3 data-v-04b2c4a4="" class="nav-link text-dark text-secondary">
+                            Billing
+                        </h3>
+                        <a data-v-04b2c4a4="" href="./subscription.html"
+                            class="nav-link hover-white text-dark account_sidebar_button_subs">
+                            <i data-v-04b2c4a4="" class="fa fa-fw mr-2 fa-sync"></i>Subscription
+                        </a>
+                        <a data-v-04b2c4a4="" href="./paymentMethod.html"
+                            class="nav-link hover-white text-dark account_sidebar_button_paymethod">
+                            <i data-v-04b2c4a4="" class="fa fa-fw mr-2 fa-credit-card"></i>Payment Method
+                        </a>
+                  
+                        <br data-v-04b2c4a4="">
+                        <div data-v-04b2c4a4="" class="mx-3 py-3 mt-auto">
+                            <button  id="logoutButton"  onclick="logout()" href="./index.html" class="btn btn-block btn-blue account_sidebar_button">
+                                Log Out
+                            </button>
+                        </div>
+                    </nav>
+                </div>
+                <div class="col-12 col-md bg-gray-100 overflow-y-a">
+                    <div class="container-fluid py-5">
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="text-muted">Profile Management</h5>
+                                <h2>Update Information</h2>
+                                <div class="row">
+                                    <div class="col">
+                                        <form data-v-253b00da="" role="form" class="py-3">
+                                            <div data-v-253b00da="" class="form-group row">
+                                                <div data-v-253b00da=""
+                                                    class="col-md-4 col-xl-3 py-3 d-flex justify-content-md-end justify-content-center">
+                                                    <div data-v-253b00da="" class="image-placeholder">
+                                                        <!-- <img data-v-253b00da=""
+                                                            src=""
+                                                            class="profile-photo-preview"> -->
+                                                    </div>
+                                                </div>
+                                                <div data-v-253b00da=""
+                                                    class="col-md-6 col-lg-4 py-3 d-flex justify-content-md-start justify-content-center align-items-center">
+                                                    <div data-v-253b00da="" class="spark-uploader w-100">
+                                                        <input data-v-253b00da="" type="file" name="photo"
+                                                            class="spark-uploader-control w-100">
+                                                        <button data-v-253b00da="" type="button"
+                                                            class="btn btn-green btn-block">
+                                                            Select a Photo
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="py-3">
+                                            <h4>Contact Information</h4>
+                                            <form role="form">
+                                                <div class="form-group row">
+                                                    <label class="col-md-4 col-xl-3 col-form-label text-md-right">
+                                                        Name
+                                                    </label>
+                                                    <div class="col-md-8 col-lg-6">
+                                                        <input type="text" class="form-control">
+                                                        <span role="alert" class="invalid-feedback" style="display: none;"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <label class="col-md-4 col-xl-3 col-form-label text-md-right">
+                                                        Email Address
+                                                    </label>
+                                                    <div class="col-md-8 col-lg-6">
+                                                        <input type="email" name="email" class="form-control">
+                                                        <span role="alert" class="invalid-feedback" style="display: none;"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group row">
+                                                    <div class="col-md-6 col-lg-4 offset-md-4 offset-xl-3">
+                                                        <button type="submit" class="btn btn-teal" style="background-color:#0d6efd;">
+                                                            Update
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <a href="#" class="btn btn-outline-danger float-right"
+                                            id="account_profile_button_deleteacc">
+                                            Delete Account
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!---->
+           
+            <div data-v-2197d5d4="" class="pl-3 bg-blue-dark">
+                <div data-v-2197d5d4="" class="text-white-50"><span data-v-2197d5d4="">Copyright ©2021</span>
+
+                    &nbsp;•&nbsp;
+
+                    <a data-v-2197d5d4="" href="#" class="text-nowrap">Terms</a>
+
+                    &nbsp;•&nbsp;
+
+                    <a data-v-2197d5d4="" href="#" class="text-nowrap">Privacy Policy</a>
+
+                    &nbsp;•&nbsp;
+
+                    <a data-v-2197d5d4="" href="javascript:void(0)" class="text-nowrap">Accessibility</a>
+   
+                </div>
+            </div>
+           
+
+        <div class="vue-notification-group" style="top: 0px; right: 0px;"><span></span></div>
+        </div>
+</body>
+
+</html>
